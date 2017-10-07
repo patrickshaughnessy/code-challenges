@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+<body>
+
+  <h1>Where are you?</h1>
+
+  <input id="name" type="text" name="name" placeholder="Your name" value="">
+  <button id="btn" type="submit" name="button">Find my location</button>
+
+  <h3 id="message"></h3>
+  <h3 id="lat"></h3>
+  <h3 id="lng"></h3>
+
+  <script>
+    'use strict'
+
+    var person = {
+      name: '',
+      location: {},
+      getLocation: function() {
+        navigator.geolocation.getCurrentPosition(position => {
+          this.location.lat = position.coords.latitude;
+          this.location.lng = position.coords.longitude;
+        })
+      }
+    }
+
+    document.getElementById('btn').addEventListener('click', handleClick);
+
+    function handleClick(e){
+      e.preventDefault();
+
+      person.name = document.getElementById('name').value;
+      person.getLocation();
+
+      savePerson(person, function(err, savedPerson){
+        displayMessage(savedPerson);
+        document.getElementById('name').value = '';
+        console.log('Saved:', person);
+      });
+    }
+
+    function savePerson(person, cb){
+      var latency = Math.floor(Math.random() * 300 + 300);
+
+      setTimeout(function(){
+        window.localStorage.setItem('person', JSON.stringify(person));
+        cb(null, person);
+      }, latency)
+    }
+
+    function displayMessage(person){
+      document.getElementById('message').innerHTML = 'Hello, ' + person.name + '! Your location is:';
+      document.getElementById('lat').innerHTML = person.location.lat;
+      document.getElementById('lng').innerHTML = person.location.lng;
+    }
+
+  </script>
+</body>
+</html>

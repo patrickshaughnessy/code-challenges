@@ -1,0 +1,100 @@
+Given an array of integers, which contains many duplicate integers and one unique integer, find the unique integer.
+
+The array is not guaranteed to be sorted or sequential.
+
+Gotchas
+We can do this in O(n) time.
+
+No matter how many integers are in our input array, we can always find the unique ID in O(1) space!
+
+Breakdown
+A brute force approach would use two nested loops to go through every ID and check every other ID to see if there's a duplicate.
+
+This would take O(n^2) time and O(1) space. Can we bring that runtime down?
+
+Well, we know every integer appears twice, except for one integer, which appears once. Can we just track how many times each integer appears?
+
+We could iterate through the array and store each integer in an object, where the keys are the integers and the values are the number of times we’ve seen that integer so far. At the end, we’d just need to return the integer we saw one time.
+
+  function findUniqueInt(arr) {
+
+    var dict = new Map();
+
+    arr.forEach(function(int) {
+        if (dict.has(int)) {
+            var newCount = dict.get(int) + 1;
+            dict.set(int, newCount);
+        } else {
+            dict.set(int, 1);
+        }
+    });
+
+    for (var [id, count] of dict) {
+        if (count === 1) {
+            return id;
+        }
+    }
+}
+
+We use a JavaScript Map instead of an object because object keys are only strings and symbols, but our keys are numbers. The Map also lets us iterate over the keys and values more elegantly:
+
+  // Map
+for (var [id, count] of dict) {
+    if (count === 1) {
+        return id;
+    }
+}
+
+// object
+for (var id in dict) {
+    if (dict.hasOwnProperty(id)) {
+        if (dict[id] === 1) {
+            return Number(id);
+        }
+    }
+}
+JavaScript
+Alright, we got our runtime down to O(n). That's probably the best runtime we can get—to find our unique integer we’ll definitely have to look at every integer in the worst case.
+
+But now we've added O(n) space, for our object. Can we bring that down?
+
+Well, we could use booleans as our values, instead of integers. If we see an integer, we'll add it as a key in our object with a boolean value of true. If we see it again, we'll change its value to false. At the end, our non-repeated order ID will be the one integer with a value of true.
+
+How much space does this save us? Depends how our language stores booleans vs integers. Often booleans take up just as much space as ints.
+
+And even if each boolean were just 1 bit, that'd still be O(n) space overall.
+
+So using booleans probably doesn't save us much space here. Any other ideas?
+
+Let’s zoom out and think about what we’re working with. The only data we have is integers. How are integers stored?
+
+Our machine stores integers as binary numbers using bits . What if we thought about this problem on the level of individual bits?
+
+Let's think about the bitwise operations AND , OR , XOR , NOT and bit shifts.
+
+Is one of those operations helpful for finding our unique integer?
+
+We’re seeing every integer twice, except one. Is there a bitwise operation that would let the second occurrence of an integer cancel out the first?
+
+If so, we could start with a variable uniqueint set to 00 and run some bitwise operation with that variable and each number in our array. If duplicate integers cancel each other out, then we’d only be left with the unique integer at the end!
+
+Which bitwise operation would let us do that?
+
+Solution
+We XOR all the integers in the array. We start with a variable uniqueint set to 0. Every time we XOR with a new integer, it will change the bits. When we XOR with the same integer again, it will cancel out the earlier change.
+
+In the end, we'll be left with the integer that appeared once!
+
+  function findUniqueint(ints) {
+
+    var uniqueint = 0;
+
+    ints.forEach(function(int) {
+        uniqueint ^= int;
+    });
+
+    return uniqueint;
+}
+
+Complexity
+O(n) time, and O(1) space.
